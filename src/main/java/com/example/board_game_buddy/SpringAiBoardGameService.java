@@ -1,6 +1,8 @@
 package com.example.board_game_buddy;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,15 +14,8 @@ public class SpringAiBoardGameService implements BoardGameService {
         this.chatClient = chatClientBuilder.build();
     }
 
-    private static final String questionPromptTemplate = """
-           You are a helpful assistant, answering questions about tabletop games.
-           If you don't know anything about the game or don't know the answer,
-           say "I don't know".
-           
-           The game is {gameTitle}.
-            
-           The question is: {question}.
-            """;
+    @Value("classpath:/promptTemplates/questionPromptTemplate.st")
+    Resource questionPromptTemplate;
 
     @Override
     public Answer askQuestion(Question question) {
