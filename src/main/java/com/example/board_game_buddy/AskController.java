@@ -1,5 +1,6 @@
 package com.example.board_game_buddy;
 
+import com.example.board_game_buddy.services.BoardGameService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

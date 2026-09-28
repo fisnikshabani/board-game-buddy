@@ -1,5 +1,6 @@
 package com.example.board_game_buddy;
 
+import com.example.board_game_buddy.services.BoardGameService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
