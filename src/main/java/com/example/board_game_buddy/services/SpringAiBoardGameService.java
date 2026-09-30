@@ -2,14 +2,19 @@ package com.example.board_game_buddy.services;
 
 import com.example.board_game_buddy.Answer;
 import com.example.board_game_buddy.Question;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
+
 
 @Service
 public class SpringAiBoardGameService implements BoardGameService {
+
+    public static final Logger log = LoggerFactory.getLogger(SpringAiBoardGameService.class);
 
     private final ChatClient chatClient;
     private final GameRulesService gameRulesService;
@@ -23,16 +28,30 @@ public class SpringAiBoardGameService implements BoardGameService {
     Resource promptTemplate;
 
     @Override
-    public Flux<String> askQuestion(Question question) {
+    public Answer askQuestion(Question question) {
         var gameRules = gameRulesService.getRulesFor(question.gameTitle());
 
-        return chatClient.prompt()
-                .system(systemSpec -> systemSpec //sets the system message
+        var responseEntity = chatClient.prompt()
+                .system(systemSpec -> systemSpec
                         .text(promptTemplate)
                         .param("gameTitle", question.gameTitle())
                         .param("rules", gameRules))
-                .user(question.question()) //sets the user message
-                .stream()
-                .content();
+                .user(question.question())
+                .call()
+                .responseEntity(Answer.class);
+
+        var response = responseEntity.response();
+
+        var metadata = response.getMetadata();
+        logUsage(metadata.getUsage());
+
+        return responseEntity.entity();
+    }
+
+    private void logUsage(Usage usage) {
+        log.info("Token usage: prompt={}, generation={}, total={}",
+                usage.getPromptTokens(),
+                usage.getCompletionTokens(),
+                usage.getTotalTokens());
     }
 }
