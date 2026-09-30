@@ -18,18 +18,18 @@ public class SpringAiBoardGameService implements BoardGameService {
         this.gameRulesService = gameRulesService;
     }
 
-    @Value("classpath:/promptTemplates/questionPromptTemplate.st")
-    Resource questionPromptTemplate;
+    @Value("classpath:/promptTemplates/systemPromptTemplate.st")
+    Resource promptTemplate;
 
     @Override
     public Answer askQuestion(Question question) {
         var gameRules = gameRulesService.getRulesFor(question.gameTitle());
         var answerText = chatClient.prompt()
-                .user(userSpec -> userSpec
-                        .text(questionPromptTemplate)
+                .system(systemSpec -> systemSpec //sets the system message
+                        .text(promptTemplate)
                         .param("gameTitle", question.gameTitle())
-                        .param("question", question.question())
                         .param("rules", gameRules))
+                .user(question.question()) //sets the user message
                 .call()
                 .content();
 
