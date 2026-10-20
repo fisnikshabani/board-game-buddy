@@ -29,23 +29,19 @@ public class SpringAiBoardGameService implements BoardGameService {
 
     @Override
     public Answer askQuestion(Question question) {
-        var gameRules = gameRulesService.getRulesFor(question.gameTitle());
 
-        var responseEntity = chatClient.prompt()
+        var gameRules = gameRulesService.getRulesFor(question.gameTitle(), question.question());
+
+        var answer = chatClient.prompt()
                 .system(systemSpec -> systemSpec
                         .text(promptTemplate)
                         .param("gameTitle", question.gameTitle())
                         .param("rules", gameRules))
                 .user(question.question())
                 .call()
-                .responseEntity(Answer.class);
+                .content();
 
-        var response = responseEntity.response();
-
-        var metadata = response.getMetadata();
-        logUsage(metadata.getUsage());
-
-        return responseEntity.entity();
+        return new Answer(question.gameTitle(), answer);
     }
 
     private void logUsage(Usage usage) {

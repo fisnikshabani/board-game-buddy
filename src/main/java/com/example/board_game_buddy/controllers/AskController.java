@@ -4,6 +4,7 @@ import com.example.board_game_buddy.Answer;
 import com.example.board_game_buddy.Question;
 import com.example.board_game_buddy.services.BoardGameService;
 import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +18,7 @@ public class AskController {
         this.boardGameService = boardGameService;
     }
 
-    @PostMapping(path = "/ask", produces = "application/ndjson")
+    @PostMapping(path = "/ask", produces = MediaType.APPLICATION_JSON_VALUE)
     public Answer ask(@RequestBody @Valid Question question) {
         return boardGameService.askQuestion(question);
     }
